@@ -1,12 +1,15 @@
+import logging
 from app.core.schemas import IngestionOutput, AnalysisOutput
 from app.agents.tools import fetch_historical_data, weather_api_mock
+
+logger = logging.getLogger("uvicorn.error")
 
 async def run_analysis_agent(ingestion_data: IngestionOutput) -> AnalysisOutput:
     """
     Analysis Agent logic:
     Determines severity, entity extraction, and evaluates confidence.
     """
-    print(f"[Analysis Agent] Analyzing report {ingestion_data.report_id}")
+    logger.info(f"[Analysis Agent] Analyzing report {ingestion_data.report_id}")
     
     # Determine Situation & Severity
     situation_type = "General Incident"

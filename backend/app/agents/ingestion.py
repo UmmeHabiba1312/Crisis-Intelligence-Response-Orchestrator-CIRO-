@@ -1,12 +1,15 @@
+import logging
 from app.core.schemas import RawReport, IngestionOutput
 from app.agents.tools import translate_roman_urdu, validate_location
+
+logger = logging.getLogger("uvicorn.error")
 
 async def run_ingestion_agent(report: RawReport) -> IngestionOutput:
     """
     Ingestion Agent logic:
     Normalizes text, translates Roman Urdu, and extracts locations.
     """
-    print(f"[Ingestion Agent] Processing report {report.report_id}")
+    logger.info(f"[Ingestion Agent] Processing report {report.report_id}")
     
     # Utilize tools
     translated_text = translate_roman_urdu(report.raw_text)
