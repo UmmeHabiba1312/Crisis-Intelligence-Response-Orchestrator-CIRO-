@@ -1,16 +1,16 @@
 import logging
 from typing import Any, Dict
 
-from fastapi import APIRouter, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, Query
 
 from app.agents.analysis import run_analysis_agent
 from app.agents.ingestion import run_ingestion_agent
 from app.agents.orchestrator import run_orchestrator_agent
 from app.agents.simulation import run_simulation_agent
-from app.core.db import log_agent_action, save_simulated_state, supabase, sync_crisis_event
+from app.core.db import fetch_latest_reports, log_agent_action, save_simulated_state, sync_crisis_event
 from app.core.schemas import RawReport
 
-router = APIRouter()
+router = APIRouter(prefix="/reports")
 logger = logging.getLogger("uvicorn.error")
 
 
@@ -95,6 +95,11 @@ async def pipeline_worker(report: RawReport):
             sync_crisis_event(report.report_id, status=f"Failed: {str(exc)[:80]}")
         except Exception as db_err:
             logger.error(f"[Pipeline] Failed to update error status in DB: {str(db_err)}")
+
+
+@router.get("/latest")
+async def latest_reports(limit: int = Query(default=10, ge=1, le=100)):
+    return {"reports": fetch_latest_reports(limit=limit)}
 
 
 @router.post("/ingest", status_code=202)
